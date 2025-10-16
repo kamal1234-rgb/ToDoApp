@@ -1,10 +1,10 @@
-enum priority {
+export enum priority {
   'High',
   'Medium',
   'Low',
 }
 
-enum category {
+export enum category {
   'Work',
   'Personal',
   'Urgent',

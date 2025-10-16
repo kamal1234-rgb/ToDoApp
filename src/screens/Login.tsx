@@ -2,7 +2,7 @@ import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import apiManager from '../services/APIManager';
 import { ApiError, LoginCredentials, UserData } from '../types';
-import { LoginAPI } from '../utils/constant';
+import { LoginAPI, LOGINUSER } from '../utils/constant';
 import { useAppNavigation } from '../navigation/types';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,8 +12,14 @@ import ExitAppHandler from '../hooks/ExitAppHandler';
 const Login: React.FC = () => {
   const navigation = useAppNavigation();
 
-  const [userName, setUserName] = useState<string>('emilys');
-  const [password, setPassword] = useState<string>('');
+  const [userName, setUserName] = useState<string>(
+    // ''
+    "emilys"
+  );
+  const [password, setPassword] = useState<string>(
+    // ''
+    'emilyspass'
+  );
 
   const [errorMassage, setErrorMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,7 +45,7 @@ const Login: React.FC = () => {
         loginData,
       );
       setIsLoading(false);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await AsyncStorage.setItem(LOGINUSER, JSON.stringify(userData));
       navigation.navigate('TaskList');
     } catch (error) {
       setIsLoading(false);
@@ -53,7 +59,7 @@ const Login: React.FC = () => {
       <Text style={{ margin: 20, fontSize: 30 }}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder={'Enter User Name *'}
+        placeholder={'Enter User Name * (eg.emilys)'}
         value={userName}
         onChangeText={setUserName}
       />

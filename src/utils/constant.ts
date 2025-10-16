@@ -1,6 +1,10 @@
 export const BASE_URL: string = 'https://dummyjson.com';
 export const LoginAPI: string = '/auth/login';
 
+export const LOGINUSER = '@user';
+export const STORAGE_KEY_RUNNING = '@running_tasks';
+export const STORAGE_KEY_COMPLETED = '@completed_tasks';
+
 export function generateRandomFourCharString(length: number = 10) {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

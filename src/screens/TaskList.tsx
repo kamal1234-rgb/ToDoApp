@@ -19,6 +19,7 @@ import { RootStackParamList } from '../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ExitAppHandler from '../hooks/ExitAppHandler';
+import { STORAGE_KEY_COMPLETED, STORAGE_KEY_RUNNING } from '../utils/constant';
 
 type TaskListRouteProp = RouteProp<RootStackParamList, 'TaskList'>;
 
@@ -36,8 +37,7 @@ const groupByCategory = (data: TaskItem[]): Record<string, TaskItem[]> => {
 
 const priorityRank: any = { High: 3, Medium: 2, Low: 1 };
 
-const STORAGE_KEY_RUNNING = '@running_tasks';
-const STORAGE_KEY_COMPLETED = '@completed_tasks';
+type Tab = 'running' | 'completed';
 
 const TaskList: React.FC<TaskListProps> = ({ route }) => {
   const navigation = useAppNavigation();
@@ -60,6 +60,12 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   const groupedData = useMemo(() => groupByCategory(todos), [todos]);
   const categories = Object.keys(groupedData);
 
+  const groupedDataByComplited = useMemo(
+    () => groupByCategory(completedTasks),
+    [completedTasks],
+  );
+  const categoriesCompletedTasks = Object.keys(groupedDataByComplited);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -68,7 +74,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
           STORAGE_KEY_COMPLETED,
         );
         console.log('loadData :: storedCompleted :: ', storedCompleted);
-        setRunningTasks(storedRunning ? JSON.parse(storedRunning) : todoList);
+        setRunningTasks(storedRunning ? JSON.parse(storedRunning) : todos);
         setCompletedTasks(storedCompleted ? JSON.parse(storedCompleted) : []);
       } catch (error) {
         console.error('Error loading tasks:', error);
@@ -80,7 +86,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
 
   useEffect(() => {
     console.log('completedTasks ::: ', completedTasks);
-    setTodos(todosBackup);
+    // setTodos(todosBackup);
     AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
     AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
   }, [completedTasks]);
@@ -88,12 +94,22 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   useEffect(() => {
     searchTaskByNameAndDesc(searchText);
     if (!searchText.trim()) {
-      setTodos(todosBackup);
+      // setTodos(todosBackup);
     }
   }, [searchText]);
 
   const sortedData = useMemo(() => {
+    if (!groupedData || Object.keys(groupedData).length === 0) {
+      setSelectedCategory(null);
+      return {};
+    }
     if (!selectedCategory) return groupedData;
+    console.log(
+      'groupedData :: ',
+      groupedData,
+      '\nselectedCategory :: ',
+      selectedCategory,
+    );
     const categoryTasks = [...groupedData[selectedCategory]];
     categoryTasks.sort((a, b) =>
       sortOrder === 'highToLow'
@@ -174,6 +190,8 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
     setTodos(filterTodos(todos, searchText));
   }
 
+  const [activeTab, setActiveTab] = useState<Tab>('running');
+
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       {isEdited ? (
@@ -202,9 +220,48 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
           />
 
           <FlatList
-            data={categories}
+            data={activeTab === 'running' ? categories : []}
             keyExtractor={item => item}
             keyboardShouldPersistTaps="handled"
+            ListHeaderComponent={
+              <>
+                <View style={styles.tabBar}>
+                  <TouchableOpacity
+                    style={[
+                      styles.tabButton,
+                      activeTab === 'running' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('running')}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        activeTab === 'running' && styles.activeText,
+                      ]}
+                    >
+                      Running ({runningTasks.length})
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.tabButton,
+                      activeTab === 'completed' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('completed')}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        activeTab === 'completed' && styles.activeText,
+                      ]}
+                    >
+                      Completed ({completedTasks.length})
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            }
             renderItem={({ item: category }) => (
               <View style={styles.categorySection}>
                 <View style={styles.headerRow}>
@@ -223,7 +280,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
                 </View>
 
                 <FlatList
-                  data={sortedData[category]}
+                  data={activeTab === 'running' ? sortedData[category] : []}
                   keyExtractor={task => task.id}
                   keyboardShouldPersistTaps="handled"
                   renderItem={({ item }) => (
@@ -264,16 +321,16 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
                         >
                           Delete
                         </Text>
-                        {!item.isCompleted && (
-                          <Text
-                            style={[styles.button, { color: 'green' }]}
-                            onPress={() => {
-                              onCompleteClick(item.id);
-                            }}
-                          >
-                            Complete
-                          </Text>
-                        )}
+                        {/* {!item.isCompleted && ( */}
+                        <Text
+                          style={[styles.button, { color: 'green' }]}
+                          onPress={() => {
+                            onCompleteClick(item.id);
+                          }}
+                        >
+                          Complete
+                        </Text>
+                        {/* )} */}
                       </View>
                     </View>
                   )}
@@ -281,22 +338,26 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
               </View>
             )}
             ListFooterComponent={
-              <>
-                <Text style={[styles.sectionHeader, { marginTop: 20 }]}>
-                  Completed Tasks
-                </Text>
-                {completedTasks.length === 0 ? (
-                  <Text style={styles.emptyText}>No completed tasks</Text>
-                ) : (
-                  completedTasks.map(task => (
-                    <View key={task.id} style={styles.completedCard}>
-                      <Text style={styles.completedTitle}>
-                        {task.title} ({task.category})
-                      </Text>
-                    </View>
-                  ))
-                )}
-              </>
+              activeTab === 'running' ? (
+                <></>
+              ) : (
+                <>
+                  <Text style={[styles.sectionHeader, { marginTop: 20 }]}>
+                    Completed Tasks
+                  </Text>
+                  {completedTasks.length === 0 ? (
+                    <Text style={styles.emptyText}>No completed tasks</Text>
+                  ) : (
+                    completedTasks.map(task => (
+                      <View key={task.id} style={styles.completedCard}>
+                        <Text style={styles.completedTitle}>
+                          {task.title} ({task.category})
+                        </Text>
+                      </View>
+                    ))
+                  )}
+                </>
+              )
             }
           />
 
@@ -415,5 +476,47 @@ const styles = StyleSheet.create({
   completedTitle: {
     fontSize: 15,
     color: '#006400',
+  },
+
+  tabBar: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#007AFF', // Blue color for active tab
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#888',
+    fontWeight: '600',
+  },
+  activeText: {
+    color: '#007AFF',
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  itemTitle: {
+    fontSize: 16,
+    flexShrink: 1,
+  },
+  itemStatus: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 10,
   },
 });

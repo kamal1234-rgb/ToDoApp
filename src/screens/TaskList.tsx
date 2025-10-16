@@ -7,42 +7,53 @@ import {
   View,
   Alert,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { todoList } from '../data';
-import { TodoItem } from '../types';
+import { TaskItem } from '../types';
 import { useAppNavigation } from '../navigation/types';
-import ExitAppHandler from '../hooks/ExitAppHandler';
 import AddEditProduct from '../components/AddEditProduct';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ExitAppHandler from '../hooks/ExitAppHandler';
 
-type ProductListRouteProp = RouteProp<RootStackParamList, 'ProductList'>;
+type TaskListRouteProp = RouteProp<RootStackParamList, 'TaskList'>;
 
-interface ProductListProps {
-  route: ProductListRouteProp;
+interface TaskListProps {
+  route: TaskListRouteProp;
 }
 
-const groupByCategory = (data: TodoItem[]): Record<string, TodoItem[]> => {
+const groupByCategory = (data: TaskItem[]): Record<string, TaskItem[]> => {
   return data.reduce((groups, item) => {
     if (!groups[item.category]) groups[item.category] = [];
     groups[item.category].push(item);
     return groups;
-  }, {} as Record<string, TodoItem[]>);
+  }, {} as Record<string, TaskItem[]>);
 };
 
 const priorityRank: any = { High: 3, Medium: 2, Low: 1 };
 
-const ProductList: React.FC<ProductListProps> = ({ route }) => {
+const STORAGE_KEY_RUNNING = '@running_tasks';
+const STORAGE_KEY_COMPLETED = '@completed_tasks';
+
+const TaskList: React.FC<TaskListProps> = ({ route }) => {
   const navigation = useAppNavigation();
-  const [todos, setTodos] = useState<TodoItem[]>(todoList);
+  const [todos, setTodos] = useState<TaskItem[]>(todoList);
+
+  const [searchText, setSearchText] = useState<string>('');
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'highToLow' | 'lowToHigh'>(
     'highToLow',
   );
 
-  const [isEdit, setIsEdit] = useState<boolean>(true);
+  const [runningTasks, setRunningTasks] = useState<TaskItem[]>([]);
+  const [completedTasks, setCompletedTasks] = useState<TaskItem[]>([]);
+
   const [isEdited, setIsEdited] = useState<boolean>(false);
-  const [editItem, setEditItem] = useState<TodoItem | null>(null);
+  const [editItem, setEditItem] = useState<TaskItem | null>(null);
 
   const groupedData = useMemo(() => groupByCategory(todos), [todos]);
   const categories = Object.keys(groupedData);
@@ -83,45 +94,82 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
     ]);
   };
 
-  const handleSaveEdit = (updatedItem: TodoItem) => {
-    let isNew = false;
-    // setTodos(prev => prev.map(item => (item.id === updatedItem.id ? updatedItem : item)));
-
-    const updatedTodos = [...todos]; // Create a mutable copy for manipulation
-
-    // 1. Check if the item already exists in the list
+  const handleSaveEdit = (updatedItem: TaskItem) => {
+    const updatedTodos = [...todos];
     const index = updatedTodos.findIndex(item => item.id === updatedItem.id);
-
     if (index !== -1) {
-      // Item found: Update it
       updatedTodos[index] = updatedItem;
-      // isNew remains false
     } else {
-      // Item not found: Add it and set isNew
       updatedTodos.push(updatedItem);
-      isNew = true; // 🎯 Set isNew to true here
     }
     setTodos(updatedTodos);
-
     setIsEdited(false);
   };
 
-  // 👇 Handle new task coming from AddProductScreen
   useEffect(() => {
-    if (route?.params?.newItem) {
-      setTodos(prev => [...prev, route.params.newItem]);
-      navigation.setParams({ newItem: null }); // clear param
-    }
-  }, [route?.params?.newItem]);
+    const loadData = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user');
+        const storedRunning = await AsyncStorage.getItem(STORAGE_KEY_RUNNING);
+        const storedCompleted = await AsyncStorage.getItem(
+          STORAGE_KEY_COMPLETED,
+        );
+        setRunningTasks(storedRunning ? JSON.parse(storedRunning) : todoList);
+        setCompletedTasks(storedCompleted ? JSON.parse(storedCompleted) : []);
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+      }
+    };
+    loadData();
+  }, []);
 
-    const onCompleteClick = (id: string) => {
-   
+  useEffect(() => {
+    AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
+    AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
+  }, [completedTasks]);
+
+  const onCompleteClick = (id: string) => {
+    //  console.log("id :: ",id,'\nrunningTasks :: ',runningTasks);
+    const task = runningTasks.find(item => item.id === id);
+    //  console.log("task :: ",task);
+
+    if (task) {
+      // setRunningTasks(prev => prev.filter(t => t.id !== id));
+      setCompletedTasks(prev => [...prev, task]);
+    }
   };
 
+  useEffect(() => {
+    searchTaskByNameAndDesc(searchText);
+  }, [searchText]);
+
+  const filterTodos = (updatedTodos: TaskItem[], searchText: string): TaskItem[] => {
+  if (!searchText || searchText.trim() === '') {
+    return updatedTodos;
+  }
+  const lowerSearchText = searchText.toLowerCase().trim();
+  return updatedTodos.filter(item => {
+    const titleMatches = item.title.toLowerCase().includes(lowerSearchText);
+    const descriptionMatches = item.description.toLowerCase().includes(lowerSearchText);
+    return titleMatches || descriptionMatches;
+  });
+};
+
+  function searchTaskByNameAndDesc(searchText: string) {
+    console.log('searchText :: ',searchText);
+    setTodos(filterTodos(todos, searchText));
+
+    // if (index !== -1) {
+    //   updatedTodos[index] = updatedItem;
+    // } else {
+    //   updatedTodos.push(updatedItem);
+    // }
+    // setTodos(updatedTodos);
+  }
+
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaProvider style={{ flex: 1 }}>
       {isEdited ? (
-        // && editItem
         <AddEditProduct
           item={editItem}
           onSave={handleSaveEdit}
@@ -130,6 +178,15 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
         />
       ) : (
         <>
+          <TextInput
+            style={styles.input}
+            placeholder="Search by Task or Description"
+            value={searchText}
+            onChangeText={data => {
+              setSearchText(data);
+            }}
+          />
+
           <FlatList
             data={categories}
             keyExtractor={item => item}
@@ -158,7 +215,7 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
                       <Pressable
                         style={{ flex: 1 }}
                         onPress={() =>
-                          navigation.navigate('ProductDetails', { id: item.id })
+                          navigation.navigate('TaskDetails', { id: item.id,taskItem:item })
                         }
                       >
                         <Text style={styles.taskTitle}>
@@ -177,7 +234,6 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
                         <Text
                           style={styles.button}
                           onPress={() => {
-                            // setIsEdit(true)
                             onEditClick(item.id);
                           }}
                         >
@@ -189,10 +245,11 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
                         >
                           Delete
                         </Text>
-                        <Text style={[styles.button, { color: 'green' }]}
-                        onPress={() => onCompleteClick(item.id)}
+                        <Text
+                          style={[styles.button, { color: 'green' }]}
+                          onPress={() => onCompleteClick(item.id)}
                         >
-                          ✅ Complete
+                          Complete
                         </Text>
                       </View>
                     </View>
@@ -200,6 +257,24 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
                 />
               </View>
             )}
+            ListFooterComponent={
+              <>
+                <Text style={[styles.sectionHeader, { marginTop: 20 }]}>
+                   Completed Tasks
+                </Text>
+                {completedTasks.length === 0 ? (
+                  <Text style={styles.emptyText}>No completed tasks</Text>
+                ) : (
+                  completedTasks.map(task => (
+                    <View key={task.id} style={styles.completedCard}>
+                      <Text style={styles.completedTitle}>
+                        {task.title} ({task.category})
+                      </Text>
+                    </View>
+                  ))
+                )}
+              </>
+            }
           />
 
           <TouchableOpacity
@@ -215,11 +290,11 @@ const ProductList: React.FC<ProductListProps> = ({ route }) => {
       )}
 
       <ExitAppHandler />
-    </View>
+    </SafeAreaProvider>
   );
 };
 
-export default ProductList;
+export default TaskList;
 
 const styles = StyleSheet.create({
   addButton: {
@@ -240,13 +315,26 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   buttonview: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     alignSelf: 'flex-end',
   },
   button: {
     marginHorizontal: 6,
+    borderRadius: 5,
+    borderWidth: 0.5,
+    textAlign: 'center',
+    marginVertical: 2,
+    paddingHorizontal: 6,
     color: '#007bff',
     fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    margin: 10,
   },
   categorySection: {
     marginVertical: 10,
@@ -279,5 +367,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2a2727',
     width: '70%',
+  },
+  sectionHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#000',
+    marginHorizontal: 16,
+    marginTop: 10,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 14,
+    marginVertical: 10,
+  },
+  completedCard: {
+    backgroundColor: '#e6f7e6',
+    marginHorizontal: 16,
+    marginVertical: 6,
+    padding: 10,
+    borderRadius: 8,
+  },
+  completedTitle: {
+    fontSize: 15,
+    color: '#006400',
   },
 });

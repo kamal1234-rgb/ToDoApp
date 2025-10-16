@@ -1,34 +1,33 @@
-import { ActivityIndicator, Modal, StyleSheet,  View } from 'react-native'
-import React from 'react'
+import { ActivityIndicator, Modal, StyleSheet, View } from 'react-native';
+import React from 'react';
 
-const Loading = (props:{isLoading:boolean}) => {
+const Loading = (props: { isLoading: boolean }) => {
   return (
     <View>
-              <Modal
-                transparent={true}
-                visible={props.isLoading}
-                animationType={"fade"}
-                onRequestClose={() => {
-                }}
-                >
-                <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
-                    <ActivityIndicator size="small" color="#000000"/>
-                  </View>
-                </View>
-              </Modal>
+      <Modal
+        transparent={true}
+        visible={props.isLoading}
+        animationType={'fade'}
+        onRequestClose={() => {}}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <ActivityIndicator size="small" color="#000000" />
+          </View>
+        </View>
+      </Modal>
     </View>
-  )
-}
+  );
+};
 
-export default Loading
+export default Loading;
 
 const styles = StyleSheet.create({
-   centeredView: {
+  centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)'
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   modalView: {
     margin: 20,
@@ -45,4 +44,4 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-})
+});

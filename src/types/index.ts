@@ -10,7 +10,7 @@ enum category {
   'Urgent',
 }
 
-export interface TodoItem {
+export interface TaskItem {
   id: string;
   title: string;
   description: string;

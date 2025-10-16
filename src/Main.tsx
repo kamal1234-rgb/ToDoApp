@@ -4,8 +4,8 @@ import {createStaticNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Splash from './screens/Splash';
 import Login from './screens/Login';
-import ProductList from './screens/ProductList';
-import ProductDetails from './screens/ProductDetails';
+import TaskList from './screens/TaskList';
+import TaskDetails from './screens/TaskDetails';
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -17,17 +17,18 @@ const RootStack = createNativeStackNavigator({
       screen: Login,
       options: {headerShown:false},
     },
-    ProductList: { 
-      screen: ProductList,
+    TaskList: { 
+      screen: TaskList,
       options: {
         headerLeft:()=>null,
         headerBackVisible: false, 
+        title:'Dashbord'
       }
     },
-    ProductDetails: { screen: ProductDetails},
+    TaskDetails: { screen: TaskDetails},
   },
 });
-
+   
 const Navigation = createStaticNavigation(RootStack);
 
 export default function Main() {

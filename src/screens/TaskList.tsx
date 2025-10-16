@@ -529,7 +529,6 @@ import {
   Text,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAppNavigation } from '../navigation/types';
@@ -665,28 +664,11 @@ const TaskList: React.FC = () => {
                   setIsEdited(true);
                 }
               }}
-              onDelete={id => {
-                Alert.alert(
-                  'Confirm Delete',
-                  'Do you want to delete this task?',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Delete',
-                      onPress: () => {
-                        searchText != ''
-                          ? setFilteredRunning(prev =>
-                              prev.filter(t => t.id !== id),
-                            )
-                          : setRunningTasks(prev =>
-                              prev.filter(t => t.id !== id),
-                            );
-                      },
-                      style: 'destructive',
-                    },
-                  ],
-                );
-              }}
+              onDelete={id =>
+                searchText != ''
+                  ? setFilteredRunning(prev => prev.filter(t => t.id !== id))
+                  : setRunningTasks(prev => prev.filter(t => t.id !== id))
+              }
               onComplete={handleComplete}
             />
           ) : (

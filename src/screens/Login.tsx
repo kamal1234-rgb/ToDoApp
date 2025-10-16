@@ -2,7 +2,7 @@ import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import apiManager from '../services/APIManager';
 import { ApiError, LoginCredentials, UserData } from '../types';
-import { LoginAPI } from '../utils/constant';
+import { LoginAPI, LOGINUSER } from '../utils/constant';
 import { useAppNavigation } from '../navigation/types';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,8 +12,14 @@ import ExitAppHandler from '../hooks/ExitAppHandler';
 const Login: React.FC = () => {
   const navigation = useAppNavigation();
 
-  const [userName, setUserName] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [userName, setUserName] = useState<string>(
+    // ''
+    "emilys"
+  );
+  const [password, setPassword] = useState<string>(
+    // ''
+    'emilyspass'
+  );
 
   const [errorMassage, setErrorMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -24,11 +30,11 @@ const Login: React.FC = () => {
 
   function handleUserLogin() {
     const loginData: LoginCredentials = {
-      username: userName,
-      password,
+      username: userName.trim(),
+      password: password.trim(),
       expiresInMins: 30, // optional
     };
-    setIsLoading(true)
+    setIsLoading(true);
     loginUser(loginData);
   }
 
@@ -39,26 +45,12 @@ const Login: React.FC = () => {
         loginData,
       );
       setIsLoading(false);
-      // 2. Success handling
-      console.log('Login Successful! ');
-      console.log('User ID:', userData.id);
-      console.log(
-        'Access Token:',
-        userData.accessToken.substring(0, 20) + '...',
-      );
-      console.log('Full User Data:', userData);
-
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-
+      await AsyncStorage.setItem(LOGINUSER, JSON.stringify(userData));
       navigation.navigate('TaskList');
-      // You would typically save the tokens here (e.g., to AsyncStorage or state)
     } catch (error) {
-      setIsLoading(false)
-      const apiError = error as ApiError; // Cast to your custom error type
+      setIsLoading(false);
+      const apiError = error as ApiError;
       setErrorMessage(`Login Failed! \n ${apiError.message}`);
-      // console.error('Login Failed! ');
-      // console.error('Status Code:', apiError.statusCode);
-      // console.error('Error Message:', apiError.message);
     }
   }
 
@@ -67,7 +59,7 @@ const Login: React.FC = () => {
       <Text style={{ margin: 20, fontSize: 30 }}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder={'Enter User Name *'}
+        placeholder={'Enter User Name * (eg.emilys)'}
         value={userName}
         onChangeText={setUserName}
       />
@@ -80,17 +72,13 @@ const Login: React.FC = () => {
       />
       <Button
         onPress={() => {
-          if (userName != '' && password != '') 
-            handleUserLogin() 
-          else
-            setErrorMessage(`Id and password are required`);
+          if (userName != '' && password != '') handleUserLogin();
+          else setErrorMessage(`Id and password are required`);
         }}
         title="SignIn"
       />
       {errorMassage != '' && (
-        <Text
-          style={styles.errortext}
-        >{errorMassage}</Text>
+        <Text style={styles.errortext}>{errorMassage}</Text>
       )}
       <Loading isLoading={isLoading} />
       <ExitAppHandler />

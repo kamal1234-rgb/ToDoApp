@@ -1,10 +1,10 @@
-enum priority {
+export enum priority {
   'High',
   'Medium',
   'Low',
 }
 
-enum category {
+export enum category {
   'Work',
   'Personal',
   'Urgent',
@@ -16,6 +16,7 @@ export interface TaskItem {
   description: string;
   priority: priority.High | priority.Medium | priority.Low | number | string;
   category: category.Work | category.Personal | category.Urgent | string;
+  isCompleted?: boolean;
 }
 
 export interface LoginCredentials {
@@ -35,7 +36,7 @@ export interface UserData {
   email: string;
   firstName: string;
   lastName: string;
-  gender: 'male' | 'female' | string; 
+  gender: 'male' | 'female' | string;
   image: string;
   accessToken: string;
   refreshToken: string;

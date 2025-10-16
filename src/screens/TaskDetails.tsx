@@ -14,9 +14,7 @@ interface TaskDetailsProps {
 const TaskDetails: React.FC<TaskDetailsProps> = ({ route }) => {
   return (
     <SafeAreaProvider>
-      <Text style={styles.taskTitle}>
-        {route.params.taskItem.title}
-      </Text>
+      <Text style={styles.taskTitle}>{route.params.taskItem.title}</Text>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={styles.taskOtherInfo}>
@@ -27,7 +25,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ route }) => {
                 route.params.taskItem.category.toString(),
               ),
             }}
-          >{route.params.taskItem.category}
+          >
+            {route.params.taskItem.category}
           </Text>
         </Text>
         <Text style={styles.taskOtherInfo}>

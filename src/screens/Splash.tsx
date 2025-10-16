@@ -11,6 +11,7 @@ import Loading from '../components/Loading';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
+import { LOGINUSER } from '../utils/constant';
 
 const Splash: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -19,7 +20,7 @@ const Splash: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const user = await AsyncStorage.getItem('user');
+        const user = await AsyncStorage.getItem(LOGINUSER);
         setTimeout(function () {
           if (user) {
             navigation.navigate('TaskList');
@@ -28,7 +29,7 @@ const Splash: React.FC = () => {
           }
         }, 3000);
       } catch (error) {
-        console.error('Error loading data:', error);
+        // console.error('Error loading data:', error);
       }
     };
     loadData();
@@ -43,7 +44,7 @@ const Splash: React.FC = () => {
       <Loading isLoading={false} />
     </SafeAreaProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

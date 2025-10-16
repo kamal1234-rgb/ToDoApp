@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BackHandler, Alert, Platform } from 'react-native';
 
 const ExitAppHandler = () => {
-  
   useFocusEffect(() => {
     const backAction = () => {
       Alert.alert(

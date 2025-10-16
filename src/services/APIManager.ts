@@ -1,6 +1,5 @@
-
-import { ApiError } from "../types";
-import { BASE_URL } from "../utils/constant";
+import { ApiError } from '../types';
+import { BASE_URL } from '../utils/constant';
 
 // --- Configuration ---
 const API_TIMEOUT_MS = 10000; // 10 seconds
@@ -13,10 +12,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
       errorData = await response.json(); // Try to parse error message from JSON
     } catch (e) {
       // If it's not JSON, just use status text
-      errorData = { message: response.statusText || "Unknown Error" };
+      errorData = { message: response.statusText || 'Unknown Error' };
     }
     const error: ApiError = new Error(
-      errorData.message || "API request failed"
+      errorData.message || 'API request failed',
     );
     error.statusCode = response.status;
     error.data = errorData;
@@ -35,17 +34,17 @@ class APIManager {
 
   // Common headers for all requests
   private getHeaders(
-    contentType: string = "application/json",
-    token: string = ""
+    contentType: string = 'application/json',
+    token: string = '',
   ): any {
-    if (token !== "") {
+    if (token !== '') {
       return {
-        "Content-Type": contentType,
+        'Content-Type': contentType,
         Authorization: `Bearer ${token}`,
       };
     } else {
       return {
-        "Content-Type": contentType,
+        'Content-Type': contentType,
       };
     }
   }
@@ -61,10 +60,10 @@ class APIManager {
    */
   async request<T>(
     endpoint: string,
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     data: any = null,
-    contentType: string = "application/json",
-    token: string = ""
+    contentType: string = 'application/json',
+    token: string = '',
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = this.getHeaders(contentType, token);
@@ -75,13 +74,13 @@ class APIManager {
     };
 
     if (data) {
-      if (contentType === "application/json") {
+      if (contentType === 'application/json') {
         config.body = JSON.stringify(data);
-      } else if (contentType === "multipart/form-data") {
+      } else if (contentType === 'multipart/form-data') {
         // For file uploads, data should be a FormData object
         config.body = data;
         // Note: Do not set 'Content-Type' for FormData, browser will set it automatically
-        delete (config.headers as Record<string, string>)["Content-Type"];
+        delete (config.headers as Record<string, string>)['Content-Type'];
       }
     }
 
@@ -98,9 +97,9 @@ class APIManager {
 
       return handleResponse<T>(response);
     } catch (error: any) {
-      if (error.name === "AbortError") {
+      if (error.name === 'AbortError') {
         console.error(
-          `API Request to ${url} timed out after ${API_TIMEOUT_MS}ms`
+          `API Request to ${url} timed out after ${API_TIMEOUT_MS}ms`,
         );
         throw new Error(`Request timed out: ${url}`);
       }
@@ -112,30 +111,33 @@ class APIManager {
   // --- Specific API methods ---
 
   get<T>(endpoint: string, token?: string): Promise<T> {
-    return this.request<T>(endpoint, "GET", null, "application/json", token);
+    return this.request<T>(endpoint, 'GET', null, 'application/json', token);
   }
 
   post<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, "POST", data);
+    return this.request<T>(endpoint, 'POST', data);
   }
 
   put<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, "PUT", data);
+    return this.request<T>(endpoint, 'PUT', data);
   }
 
   delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, "DELETE");
+    return this.request<T>(endpoint, 'DELETE');
   }
 
   // Example for file upload (multipart/form-data)
-  uploadFile<T>(endpoint: string, fileData: { uri: string; name?: string; type?: string }): Promise<T> {
+  uploadFile<T>(
+    endpoint: string,
+    fileData: { uri: string; name?: string; type?: string },
+  ): Promise<T> {
     const formData = new FormData();
-    formData.append("file", {
+    formData.append('file', {
       uri: fileData.uri,
-      name: fileData.name || "upload.jpg",
-      type: fileData.type || "image/jpeg",
+      name: fileData.name || 'upload.jpg',
+      type: fileData.type || 'image/jpeg',
     } as any);
-    return this.request<T>(endpoint, "POST", formData, "multipart/form-data");
+    return this.request<T>(endpoint, 'POST', formData, 'multipart/form-data');
   }
 }
 

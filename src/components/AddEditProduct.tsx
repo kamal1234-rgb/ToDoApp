@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import { TaskItem } from '../types';
-import uuid from 'react-native-uuid';
+import { category, priority, TaskItem } from '../types';
 import { generateRandomFourCharString } from '../utils/constant';
 
 interface Props {
@@ -37,11 +36,11 @@ const AddEditProduct: React.FC<Props> = ({
   const handleSave = () => {
     if (title && description && priority && category) {
       const newItem: TaskItem = {
-        id: item?.id || generateRandomFourCharString(10),
+        id: item?.id || generateRandomFourCharString(),
         title,
         description,
-        priority: priority as 'High' | 'Medium' | 'Low',
-        category: category as 'Work' | 'Personal' | 'Urgent',
+        priority: priority as priority.High | priority.Medium | priority.Low | number | string,
+        category: category as category.Work | category.Personal | category.Urgent | string,
       };
       onSave(newItem);
     } else {
@@ -66,6 +65,7 @@ const AddEditProduct: React.FC<Props> = ({
         style={styles.input}
         placeholder="Description"
         value={description}
+        numberOfLines={3}
         onChangeText={setDescription}
       />
       <TextInput

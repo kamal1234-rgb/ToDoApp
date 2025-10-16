@@ -14,7 +14,7 @@ import { todoList } from '../data';
 import { TaskItem } from '../types';
 import { useAppNavigation } from '../navigation/types';
 import AddEditProduct from '../components/AddEditProduct';
-import { CommonActions, RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -67,7 +67,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
         const storedCompleted = await AsyncStorage.getItem(
           STORAGE_KEY_COMPLETED,
         );
-        console.log('loadData :: storedCompleted :: ', storedCompleted);
+        console.log('loadData ',"storedRunning :: ",storedRunning,'\n  :: storedCompleted :: ', storedCompleted);
         setRunningTasks(storedRunning ? JSON.parse(storedRunning) : todoList);
         setCompletedTasks(storedCompleted ? JSON.parse(storedCompleted) : []);
       } catch (error) {
@@ -79,58 +79,17 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
-    AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
+    console.log("completedTasks ::: ",completedTasks)
+    // AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
+    // AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
   }, [completedTasks]);
-
-  const resetCurrentScreen = () => {
-    // 🎯 Use CommonActions.reset to overwrite the entire stack state
-    navigation.dispatch(
-      CommonActions.reset({
-        // 1. Set the index to 0 (the first item in the routes array)
-        index: 0,
-
-        // 2. Define the new routes array (the new stack history)
-        routes: [
-          {
-            // The name of the current route/screen
-            name: route.name,
-            // Pass any initial parameters if needed
-            params: route.params,
-          },
-        ],
-      }),
-    );
-  };
 
   useEffect(() => {
     searchTaskByNameAndDesc(searchText);
     if (!searchText.trim()) {
-      console.log('runningTasks');
-      // todosBackup,
       setTodos(todosBackup);
-    } else {
-      console.log('searchText');
     }
   }, [searchText]);
-
-  //   useEffect(() => {
-  //   if (!searchText.trim()) {
-  //     // If search is empty, reset todos to all running tasks
-  //     setTodos(runningTasks);
-  //     console.log('runningTasks');
-  //   } else {
-  //     const lower = searchText.toLowerCase();
-  //     const filtered = runningTasks.filter(
-  //       t =>
-  //         t.title.toLowerCase().includes(lower) ||
-  //         t.description.toLowerCase().includes(lower)
-  //     );
-  //     setTodos(filtered);
-  //     console.log('searchText');
-  //   }
-  //   console.log('searchText, runningTasks');
-  // }, [searchText, runningTasks]);
 
   const sortedData = useMemo(() => {
     if (!selectedCategory) return groupedData;
@@ -181,12 +140,12 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   };
 
   const onCompleteClick = (id: string) => {
-     console.log("id :: ",id,'\nrunningTasks :: ',runningTasks);
     const task = runningTasks.find(item => item.id === id);
-     console.log("task :: ",task);
     if (task) {
+const updatedTask = { ...task, isCompleted: true };
+      AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify([...completedTasks,updatedTask]));
       setRunningTasks(prev => prev.filter(t => t.id !== id));
-      setCompletedTasks(prev => [...prev, task]);
+      setCompletedTasks(prev => [...prev, updatedTask]);
     }
   };
 
@@ -208,15 +167,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   };
 
   function searchTaskByNameAndDesc(searchText: string) {
-    console.log('searchText :: ', searchText);
     setTodos(filterTodos(todos, searchText));
-
-    // if (index !== -1) {
-    //   updatedTodos[index] = updatedItem;
-    // } else {
-    //   updatedTodos.push(updatedItem);
-    // }
-    // setTodos(updatedTodos);
   }
 
   return (
@@ -307,14 +258,16 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
                           style={[styles.button, { color: 'red' }]}
                           onPress={() => onDeleteClick(item.id)}
                         >
+
                           Delete
                         </Text>
+                        {!item.isComplited &&
                         <Text
                           style={[styles.button, { color: 'green' }]}
+                          disabled
                           onPress={() => onCompleteClick(item.id)}
-                        >
-                          Complete
-                        </Text>
+                        >Complete
+                        </Text>}
                       </View>
                     </View>
                   )}

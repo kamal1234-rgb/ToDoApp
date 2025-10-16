@@ -16,6 +16,7 @@ export interface TaskItem {
   description: string;
   priority: priority.High | priority.Medium | priority.Low | number | string;
   category: category.Work | category.Personal | category.Urgent | string;
+  isComplited?:boolean;
 }
 
 export interface LoginCredentials {

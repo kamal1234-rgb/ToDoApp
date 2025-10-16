@@ -28,7 +28,7 @@ const Splash: React.FC = () => {
           }
         }, 3000);
       } catch (error) {
-        console.error('Error loading data:', error);
+        // console.error('Error loading data:', error);
       }
     };
     loadData();

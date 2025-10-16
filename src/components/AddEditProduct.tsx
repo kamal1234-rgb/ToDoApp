@@ -37,7 +37,7 @@ const AddEditProduct: React.FC<Props> = ({
   const handleSave = () => {
     if (title && description && priority && category) {
       const newItem: TaskItem = {
-        id: item?.id || generateRandomFourCharString(10),
+        id: item?.id || generateRandomFourCharString(),
         title,
         description,
         priority: priority as 'High' | 'Medium' | 'Low',

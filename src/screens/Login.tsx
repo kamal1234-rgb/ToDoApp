@@ -24,8 +24,8 @@ const Login: React.FC = () => {
 
   function handleUserLogin() {
     const loginData: LoginCredentials = {
-      username: userName,
-      password,
+      username: userName.trim(),
+      password: password.trim(),
       expiresInMins: 30, // optional
     };
     setIsLoading(true)
@@ -39,26 +39,12 @@ const Login: React.FC = () => {
         loginData,
       );
       setIsLoading(false);
-      // 2. Success handling
-      console.log('Login Successful! ');
-      console.log('User ID:', userData.id);
-      console.log(
-        'Access Token:',
-        userData.accessToken.substring(0, 20) + '...',
-      );
-      console.log('Full User Data:', userData);
-
       await AsyncStorage.setItem('user', JSON.stringify(userData));
-
       navigation.navigate('TaskList');
-      // You would typically save the tokens here (e.g., to AsyncStorage or state)
     } catch (error) {
       setIsLoading(false)
-      const apiError = error as ApiError; // Cast to your custom error type
+      const apiError = error as ApiError;
       setErrorMessage(`Login Failed! \n ${apiError.message}`);
-      // console.error('Login Failed! ');
-      // console.error('Status Code:', apiError.statusCode);
-      // console.error('Error Message:', apiError.message);
     }
   }
 

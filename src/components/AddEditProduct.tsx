@@ -65,6 +65,7 @@ const AddEditProduct: React.FC<Props> = ({
         style={styles.input}
         placeholder="Description"
         value={description}
+        numberOfLines={3}
         onChangeText={setDescription}
       />
       <TextInput

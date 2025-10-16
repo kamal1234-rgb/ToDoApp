@@ -43,7 +43,7 @@ const Splash: React.FC = () => {
       <Loading isLoading={false} />
     </SafeAreaProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

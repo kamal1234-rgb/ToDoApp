@@ -1,11 +1,9 @@
 import { TaskItem } from '../types';
-import { generateRandomFourCharString } from '../utils/constant';
 
 export const todoList: TaskItem[] = [
   // --- URGENT Category (5 Tasks) ---
   {
     id: 'uaasdadasdasd',
-    // id:generateRandomFourCharString(10),
     title: 'Fix Production Bug',
     description:
       'Investigate and deploy patch for critical login failure affecting all users.',

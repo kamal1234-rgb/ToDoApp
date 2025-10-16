@@ -12,7 +12,7 @@ import ExitAppHandler from '../hooks/ExitAppHandler';
 const Login: React.FC = () => {
   const navigation = useAppNavigation();
 
-  const [userName, setUserName] = useState<string>('');
+  const [userName, setUserName] = useState<string>('emilys');
   const [password, setPassword] = useState<string>('');
 
   const [errorMassage, setErrorMessage] = useState<string>('');
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
       password: password.trim(),
       expiresInMins: 30, // optional
     };
-    setIsLoading(true)
+    setIsLoading(true);
     loginUser(loginData);
   }
 
@@ -42,7 +42,7 @@ const Login: React.FC = () => {
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       navigation.navigate('TaskList');
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
       const apiError = error as ApiError;
       setErrorMessage(`Login Failed! \n ${apiError.message}`);
     }
@@ -66,17 +66,13 @@ const Login: React.FC = () => {
       />
       <Button
         onPress={() => {
-          if (userName != '' && password != '') 
-            handleUserLogin() 
-          else
-            setErrorMessage(`Id and password are required`);
+          if (userName != '' && password != '') handleUserLogin();
+          else setErrorMessage(`Id and password are required`);
         }}
         title="SignIn"
       />
       {errorMassage != '' && (
-        <Text
-          style={styles.errortext}
-        >{errorMassage}</Text>
+        <Text style={styles.errortext}>{errorMassage}</Text>
       )}
       <Loading isLoading={isLoading} />
       <ExitAppHandler />

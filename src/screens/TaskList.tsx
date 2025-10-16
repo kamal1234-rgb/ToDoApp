@@ -14,7 +14,7 @@ import { todoList } from '../data';
 import { TaskItem } from '../types';
 import { useAppNavigation } from '../navigation/types';
 import AddEditProduct from '../components/AddEditProduct';
-import { CommonActions, RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -79,12 +79,10 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
   }, []);
 
   useEffect(() => {
-    console.log("completedTasks ::: ",completedTasks)
-     
+    console.log('completedTasks ::: ', completedTasks);
     setTodos(todosBackup);
-
-    // AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
-    // AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
+    AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
+    AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
   }, [completedTasks]);
 
   useEffect(() => {
@@ -144,11 +142,12 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
 
   const onCompleteClick = (id: string) => {
     const task = runningTasks.find(item => item.id === id);
-    console.log('task :: ',task);
-    
     if (task) {
-const updatedTask = { ...task, isCompleted: true };
-      AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify([...completedTasks,updatedTask]));
+      const updatedTask = { ...task, isCompleted: true };
+      AsyncStorage.setItem(
+        STORAGE_KEY_COMPLETED,
+        JSON.stringify([...completedTasks, updatedTask]),
+      );
       setRunningTasks(prev => prev.filter(t => t.id !== id));
       setCompletedTasks(prev => [...prev, updatedTask]);
     }
@@ -191,7 +190,7 @@ const updatedTask = { ...task, isCompleted: true };
             placeholder="Search by Task or Description"
             value={searchText}
             onChangeText={data => {
-              //debounced not needed 
+              //debounced not needed
               setSearchText(prevValue => {
                 if (data.length < prevValue.length) {
                   return '';
@@ -263,16 +262,18 @@ const updatedTask = { ...task, isCompleted: true };
                           style={[styles.button, { color: 'red' }]}
                           onPress={() => onDeleteClick(item.id)}
                         >
-                          
                           Delete
                         </Text>
-                        {!item.isComplited &&
-                        <Text
-                          style={[styles.button, { color: 'green' }]}
-                          onPress={() => onCompleteClick(item.id)}
-                        >Complete
-                        </Text>
-                        } 
+                        {!item.isCompleted && (
+                          <Text
+                            style={[styles.button, { color: 'green' }]}
+                            onPress={() => {
+                              onCompleteClick(item.id);
+                            }}
+                          >
+                            Complete
+                          </Text>
+                        )}
                       </View>
                     </View>
                   )}
@@ -302,7 +303,7 @@ const updatedTask = { ...task, isCompleted: true };
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => {
-                  Keyboard.dismiss();
+              Keyboard.dismiss();
               setEditItem(null);
               setIsEdited(true);
             }}

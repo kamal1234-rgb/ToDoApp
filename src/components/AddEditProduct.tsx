@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TaskItem } from '../types';
-import uuid from 'react-native-uuid';
 import { generateRandomFourCharString } from '../utils/constant';
 
 interface Props {

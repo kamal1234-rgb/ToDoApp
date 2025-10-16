@@ -15,7 +15,6 @@ async function handleResponse<T>(response: Response): Promise<T> {
       // If it's not JSON, just use status text
       errorData = { message: response.statusText || "Unknown Error" };
     }
-    console.log("errorData :: ", errorData);
     const error: ApiError = new Error(
       errorData.message || "API request failed"
     );

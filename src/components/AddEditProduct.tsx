@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import { TodoItem } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { TaskItem } from '../types';
 import uuid from 'react-native-uuid';
+import { generateRandomFourCharString } from '../utils/constant';
 
 interface Props {
-  item?: TodoItem | null; // Optional if adding new
-  onSave: (item: TodoItem) => void;
+  item?: TaskItem | null; // Optional if adding new
+  onSave: (item: TaskItem) => void;
   onCancel?: () => void;
   isEdit?: boolean;
 }
@@ -27,27 +28,25 @@ const AddEditProduct: React.FC<Props> = ({
     item?.category.toString() || '',
   );
 
-  function generateRandomFourCharString() {
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const length = 4;
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(randomIndex);
-    }
-    return result;
-  }
+  const [errorMassage, setErrorMessage] = useState<string>('');
+
+  useEffect(() => {
+    setErrorMessage('');
+  }, [title, description, priority, category]);
 
   const handleSave = () => {
-    const newItem: TodoItem = {
-      id: item?.id || generateRandomFourCharString(),
-      title,
-      description,
-      priority: priority as 'High' | 'Medium' | 'Low',
-      category: category as 'Work' | 'Personal' | 'Urgent',
-    };
-    onSave(newItem);
+    if (title && description && priority && category) {
+      const newItem: TaskItem = {
+        id: item?.id || generateRandomFourCharString(10),
+        title,
+        description,
+        priority: priority as 'High' | 'Medium' | 'Low',
+        category: category as 'Work' | 'Personal' | 'Urgent',
+      };
+      onSave(newItem);
+    } else {
+      setErrorMessage('all fields are mandatory');
+    }
   };
 
   return (
@@ -83,11 +82,18 @@ const AddEditProduct: React.FC<Props> = ({
       />
 
       <View style={styles.btnRow}>
-        <Button title={isEdit ? '💾 Update' : '➕ Add'} onPress={handleSave} />
+        <Button
+          title={isEdit ? 'Update Task' : 'Add Task'}
+          onPress={handleSave}
+        />
         {onCancel && (
-          <Button title="❌ Cancel" onPress={onCancel} color="#d9534f" />
+          <Button title="Cancel" onPress={onCancel} color="#d9534f" />
         )}
       </View>
+
+      {errorMassage != '' && (
+        <Text style={styles.errortext}>{errorMassage}</Text>
+      )}
     </View>
   );
 };
@@ -103,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
-        marginBottom:10
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
@@ -115,5 +121,10 @@ const styles = StyleSheet.create({
   btnRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  errortext: {
+    color: '#c21616ff',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

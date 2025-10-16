@@ -1,37 +1,39 @@
-import { TodoItem } from "../types";
+import { TaskItem } from "../types";
+import { generateRandomFourCharString } from "../utils/constant";
 
-export const todoList:TodoItem[] = [
+export const todoList:TaskItem[] = [
   // --- URGENT Category (5 Tasks) ---
   {
-    id: 'u1',
+    id: 'uaasdadasdasd',
+    // id:generateRandomFourCharString(10),
     title: 'Fix Production Bug',
     description: 'Investigate and deploy patch for critical login failure affecting all users.',
     priority: 'High',
     category: 'Urgent',
   },
   {
-    id: 'u2',
+    id: 'ub',
     title: 'Pay Electricity Bill',
     description: 'Due date is today. Must pay online immediately to avoid service interruption.',
     priority: 'High',
     category: 'Urgent',
   },
   {
-    id: 'u3',
+    id: 'uc',
     title: 'Review Final Client Contract',
     description: 'Client needs signature by EOD. Ensure all legal terms are correct.',
     priority: 'High',
     category: 'Urgent',
   },
   {
-    id: 'u4',
+    id: 'ud',
     title: 'Emergency Vet Appointment',
     description: 'Take the dog to the vet for the sudden rash at 2 PM.',
     priority: 'High',
     category: 'Urgent',
   },
   {
-    id: 'u5',
+    id: 'ue',
     title: 'Submit Expense Report',
     description: 'Deadline for Q3 reimbursement is tomorrow morning. Must finish today.',
     priority: 'Medium',
@@ -40,35 +42,35 @@ export const todoList:TodoItem[] = [
 
   // --- WORK Category (8 Tasks) ---
   {
-    id: 'w1',
+    id: 'wa',
     title: 'Develop User Profile Page',
     description: 'Implement the front-end for the new user profile dashboard.',
     priority: 'Medium',
     category: 'Work',
   },
   {
-    id: 'w2',
+    id: 'wb',
     title: 'Refactor Auth Service',
     description: 'Replace old monolithic authentication service with microservices approach.',
     priority: 'Low',
     category: 'Work',
   },
   {
-    id: 'w3',
+    id: 'wc',
     title: 'Weekly Team Standup Prep',
     description: 'Prepare notes on last week\'s accomplishments and blockers for the morning meeting.',
     priority: 'Medium',
     category: 'Work',
   },
   {
-    id: 'w4',
+    id: 'wd',
     title: 'Code Review: Feature X',
     description: 'Review Pull Request #157 from David for the new reporting feature.',
     priority: 'High',
     category: 'Work',
   },
   {
-    id: 'w5',
+    id: 'w',
     title: 'Update API Documentation',
     description: 'Document the new `/users/{id}/data` endpoint in Swagger.',
     priority: 'Low',

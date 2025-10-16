@@ -27,6 +27,7 @@ const RootStack = createNativeStackNavigator({
     },
     TaskDetails: { screen: TaskDetails},
   },
+  initialRouteName:'TaskList'
 });
    
 const Navigation = createStaticNavigation(RootStack);

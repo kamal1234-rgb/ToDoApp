@@ -1,8 +1,6 @@
 export const BASE_URL: string = 'https://dummyjson.com';
 export const LoginAPI: string = '/auth/login';
 
-
-
 export function generateRandomFourCharString(length: number=10) {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

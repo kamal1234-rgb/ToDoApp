@@ -14,7 +14,7 @@ import { todoList } from '../data';
 import { TaskItem } from '../types';
 import { useAppNavigation } from '../navigation/types';
 import AddEditProduct from '../components/AddEditProduct';
-import { RouteProp } from '@react-navigation/native';
+import { CommonActions, RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -67,7 +67,7 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
         const storedCompleted = await AsyncStorage.getItem(
           STORAGE_KEY_COMPLETED,
         );
-        console.log('loadData ',"storedRunning :: ",storedRunning,'\n  :: storedCompleted :: ', storedCompleted);
+        console.log('loadData :: storedCompleted :: ', storedCompleted);
         setRunningTasks(storedRunning ? JSON.parse(storedRunning) : todoList);
         setCompletedTasks(storedCompleted ? JSON.parse(storedCompleted) : []);
       } catch (error) {
@@ -80,6 +80,9 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
 
   useEffect(() => {
     console.log("completedTasks ::: ",completedTasks)
+     
+    setTodos(todosBackup);
+
     // AsyncStorage.setItem(STORAGE_KEY_RUNNING, JSON.stringify(runningTasks));
     // AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedTasks));
   }, [completedTasks]);
@@ -141,6 +144,8 @@ const TaskList: React.FC<TaskListProps> = ({ route }) => {
 
   const onCompleteClick = (id: string) => {
     const task = runningTasks.find(item => item.id === id);
+    console.log('task :: ',task);
+    
     if (task) {
 const updatedTask = { ...task, isCompleted: true };
       AsyncStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify([...completedTasks,updatedTask]));
@@ -258,16 +263,16 @@ const updatedTask = { ...task, isCompleted: true };
                           style={[styles.button, { color: 'red' }]}
                           onPress={() => onDeleteClick(item.id)}
                         >
-
+                          
                           Delete
                         </Text>
                         {!item.isComplited &&
                         <Text
                           style={[styles.button, { color: 'green' }]}
-                          disabled
                           onPress={() => onCompleteClick(item.id)}
                         >Complete
-                        </Text>}
+                        </Text>
+                        } 
                       </View>
                     </View>
                   )}

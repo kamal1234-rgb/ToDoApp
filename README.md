@@ -1,67 +1,50 @@
-# ToDoApp
-Practical Task
+# Copilot Instructions for ToDoApp
 
-📝 Project Summary
+## Project Overview
+- This is a React Native To-Do app with authentication, task categorization, and local data storage.
+- Key features: login, dashboard with categorized tasks (Work, Personal, Urgent), add/edit/delete tasks, mark as completed, and persistent storage.
 
-Build a Priority To-Do App with authentication, categorization, and local data storage using Angular and Ionic.
+## Architecture & Key Files
+- Main entry: `App.tsx` and `src/Main.tsx`.
+- Screens: `src/screens/` (e.g., `TaskList.tsx`, `TaskDetails.tsx`, `Login.tsx`, `Splash.tsx`).
+- Components: `src/components/` (e.g., `TaskCategoryList.tsx`, `TaskTabs.tsx`, `CompletedList.tsx`).
+- Data & hooks: `src/data/`, `src/hooks/` (e.g., `useTasks.ts` for task state management).
+- Services: `src/services/APIManager.ts` handles API calls (login, etc.).
+- Types: `src/types/index.ts` defines core types (Task, Category, etc.).
+- Utilities: `src/utils/` for constants and helpers.
 
-⚙️ Key Requirements
+## Developer Workflows
+- **Run app (Android):**
+  - `npx react-native run-android`
+- **Run app (iOS):**
+  - `npx react-native run-ios`
+- **Run tests:**
+  - `npm test` (Jest, see `__tests__/App.test.tsx`)
+- **Debug:**
+  - Use React Native Debugger or VS Code debugger integration.
 
-Authentication
+## Patterns & Conventions
+- Tasks are grouped and displayed by category (Work, Personal, Urgent).
+- Task objects include: title, description, priority, category, completed status.
+- Local persistence uses AsyncStorage (not Ionic Storage, despite README).
+- API integration uses `dummyjson.com` for authentication.
+- UI state managed via hooks (`useTasks.ts`), not Redux.
+- Navigation handled via React Navigation (see `src/navigation/`).
+- All business logic for tasks (add, edit, complete, delete) is in hooks/components, not services.
 
-Create a login screen using the mock API:
-🔗 https://dummyjson.com/auth/login
+## Integration Points
+- External API: `https://dummyjson.com/auth/login` for login.
+- Local storage: AsyncStorage (see helpers in `src/utils/`).
 
-On success → navigate to /dashboard
+## Examples
+- To add a new task, use the `AddEditProduct.tsx` component and update state via `useTasks.ts`.
+- To persist tasks, use helper functions in `src/utils/helpers.ts`.
+- To show completed tasks, use `CompletedList.tsx` and filter by `completed: true`.
 
-On failure → show an error message.
+## Special Notes
+- Do not use Ionic Storage; use AsyncStorage for local persistence.
+- Follow the category and priority grouping in UI as shown in `TaskCategoryList.tsx` and `TaskTabs.tsx`.
+- All new features should integrate with the hooks-based state management.
 
-Dashboard
-
-Show categorized to-dos under Work, Personal, and Urgent.
-
-Each task includes:
-
-Title
-
-Description
-
-Priority (High / Medium / Low)
-
-Category
-
-Group tasks by category in the UI.
-
-Features
-
-➕ Add new to-do items
-
-🔽 Sort tasks within each category by priority (High → Low)
-
-✅ Mark tasks as Completed → move to “Completed Tasks” section
-
-❌ Delete tasks
-
-Data Persistence
-
-Save tasks (active & completed) locally via Ionic Storage or LocalStorage.
-
-Logic Requirements
-
-Dynamically group tasks by category
-
-Sort tasks correctly by priority
-
-Remove completed tasks from active lists and display them separately
-
-Navigation
-
-/login → Login page
-
-/dashboard → Categorized to-do dashboard
-
-Optional Enhancements
-
-🔍 Add a search bar to filter tasks by title/description
-
-✏️ Allow editing tasks after creation
+---
+_Review these instructions after major architectural changes or new feature additions._

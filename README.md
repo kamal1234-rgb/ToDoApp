@@ -1,4 +1,4 @@
-# Copilot Instructions for ToDoApp
+# ToDoApp Project
 
 ## Project Overview
 - This is a React Native To-Do app with authentication, task categorization, and local data storage.
